@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
 import errorHandler from "./middlewares/ErrorHandler.js";
+import userRoute from "./routes/userRoute.js";
 
 const app = express()
 
@@ -31,6 +32,9 @@ app.get("/", (req, res) => {
     res.json({ message: "Server is healthy..😃" });
   });
 
+
+  //define routes
+  app.use('/api/v1/user',userRoute)
 
 
 

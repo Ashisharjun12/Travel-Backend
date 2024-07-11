@@ -4,7 +4,7 @@ import connectdb from "./src/config/database.js";
 
 const startServer = async () => {
   //add port
-  const port = _config.PORT || 4000;
+  const port = _config.PORT ?? 4000;
 
   //connect to db
   await connectdb();
