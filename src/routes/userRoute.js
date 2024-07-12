@@ -10,7 +10,7 @@ userRoute.post('/register', registerUser)
 userRoute.post('/activate',activateuser)
 userRoute.post('/login',loginUser)
 userRoute.post('/logout',isLoggedIn, logout)
-userRoute.post('/updatePassword',isLoggedIn, updatePassword)
+userRoute.put('/updatePassword',isLoggedIn, updatePassword)
 
 
 

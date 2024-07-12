@@ -158,7 +158,11 @@ const updatePassword = async(req,res,next)=>{
    
      if (user.password == undefined) {
        return next(400, "invalid user");
+
+
      }
+
+     const isMatchPassword = await user?.isValidatedPassword(oldPassword);
  
      if (!isMatchPassword) {
          return next(createHttpError(400, "invalid password.."));
