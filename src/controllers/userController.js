@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import usermodel from "../models/userModel.js";
 import { _config } from "../config/config.js";
 import cookieToken from "../utils/cookieToken.js";
+import { redis } from "../config/redis.js";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -121,4 +122,27 @@ const loginUser = async(req,res,next)=>{
 
 }
 
-export { registerUser, activateuser ,loginUser};
+const logout = async(req,res,next)=>{
+    try {
+        res.cookie("access_token", "", { maxAge: 1 });
+        res.cookie("refresh_token", "", { maxAge: 1 });
+    
+        //delete from redis db
+        const userId = req.user?._id || "";
+    
+        console.log(req.user?._id);
+    
+        redis.del(userId);
+    
+        res.status(200).json({
+          success: true,
+          message: "logout successfully..",
+        });
+      } catch (error) {
+        return next(createHttpError(400, "logout error..."));
+      }
+
+
+}
+
+export { registerUser, activateuser ,loginUser,logout};
