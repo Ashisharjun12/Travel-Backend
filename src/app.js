@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //check server
 app.get("/", (req, res) => {
-    res.render("index");
+    res.json({message:"server is successfully running"});
   });
   
   //health check
