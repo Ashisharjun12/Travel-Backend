@@ -145,4 +145,41 @@ const logout = async(req,res,next)=>{
 
 }
 
-export { registerUser, activateuser ,loginUser,logout};
+
+const updatePassword = async(req,res,next)=>{
+   try {
+     const { oldPassword, newPassword } = req.body;
+ 
+     if(!oldPassword || !newPassword){
+         return next(createHttpError(400 , "please fill old and new password"))
+       }
+ 
+       const user = await usermodel.findById(req.user?._id).select("+password");
+   
+     if (user.password == undefined) {
+       return next(400, "invalid user");
+     }
+ 
+     if (!isMatchPassword) {
+         return next(createHttpError(400, "invalid password.."));
+       }
+     
+       user.password = newPassword;
+     
+       await user.save();
+   
+       await redis.set(req.user?._id , JSON.stringify(user))
+     
+       res.status(200).json({
+         success:true,
+         message:"updating password successfully..",
+         user
+       })
+   } catch (error) {
+     return next(createHttpError(400, "error while updating password...", error));
+    
+   }
+
+}
+
+export { registerUser, activateuser ,loginUser,logout, updatePassword};
