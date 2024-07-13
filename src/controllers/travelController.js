@@ -7,11 +7,15 @@ import { redis } from "../config/redis.js";
 const travelDetails = async (req, res, next) => {
   const { travelDetails } = req.body;
 
+ 
+  console.log("trvael details" , travelDetails)
+
   if (!travelDetails) {
     return next(createHttpError(400, "Travel details are required"));
   }
 
   try {
+    
     const user = await usermodel.findById(req.user?._id);
 
     if (!user) {
@@ -24,7 +28,8 @@ const travelDetails = async (req, res, next) => {
     if (!user.travellerDetails) {
         user.travellerDetails = []; 
       }
-    console.log(newTravel);
+    // console.log(newTravel);
+    console.log("hello",)
     
     user.travellerDetails.push(newTravel); // Push the entire travel document
     await user.save();
