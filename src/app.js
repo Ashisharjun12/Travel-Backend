@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import errorHandler from "./middlewares/ErrorHandler.js";
 import userRoute from "./routes/userRoute.js";
+import travelRoute from "./routes/travelRoute.js";
 
 const app = express()
 
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 
   //define routes
   app.use('/api/v1/user',userRoute)
+  app.use('/api/v1/travel', travelRoute)
 
 
 

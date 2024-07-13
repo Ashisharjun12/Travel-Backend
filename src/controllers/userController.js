@@ -132,7 +132,7 @@ const logout = async(req,res,next)=>{
     
         console.log(req.user?._id);
     
-        redis.del(userId);
+        redis.del(userId)
     
         res.status(200).json({
           success: true,
@@ -158,8 +158,7 @@ const updatePassword = async(req,res,next)=>{
    
      if (user.password == undefined) {
        return next(400, "invalid user");
-
-
+    
      }
 
      const isMatchPassword = await user?.isValidatedPassword(oldPassword);
