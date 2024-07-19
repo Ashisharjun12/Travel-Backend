@@ -1,60 +1,52 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-export const travelSchema = new mongoose.Schema(
-  {
-    trip_details: {
-      destination: String,
-      duration: String,
-      budget: String,
-      travelers: String,
-    },
-    flight_details: {
-      flight_provider: String,
-      flight_number: String,
-      departure_city: String,
-      arrival_city: String,
-      departure_date: Date,
-      return_date: Date,
-      price: String,
-      booking_url: String,
-    },
-    hotel_options: [
-      {
-        name: String,
-        address: String,
-        price: String,
-        image_url: String,
-        geo_coordinates: {
-          latitude: Number,
-          longitude: Number,
-        },
-        rating: Number,
-        description: String,
-      },
-    ],
-    day_plans: [
-      {
-        day: String,
-        activities: [
-          {
-            time: String,
-            place_name: String,
-            place_details: String,
-            place_image_url: String,
-            geo_coordinates: {
-              latitude: Number,
-              longitude: Number,
-            },
-            ticket_pricing: String,
-            time_to_travel: String,
-          },
-        ],
-      },
-    ],
+export const travelSchema = new Schema({
+  trip_details: {
+    destination: { type: String, required: true },
+    duration: { type: String, required: true },
+    budget: { type: String, required: true },
+    travelers: { type: String, required: true }
   },
-  { timestamps: true }
-);
+  flight_details: {
+    flight_provider: { type: String, required: true },
+    flight_number: { type: String, required: true },
+    departure_city: { type: String, required: true },
+    arrival_city: { type: String, required: true },
+    departure_date: { type: Date, required: true },
+    return_date: { type: Date, required: true },
+    price: { type: String, required: true },
+    booking_url: { type: String, required: true }
+  },
+  hotel_options: [{
+    name: { type: String, required: true },
+    address: { type: String, required: true },
+    price: { type: String, required: true },
+    image_url: { type: String, required: true },
+    geo_coordinates: {
+      latitude: { type: Number, required: true },
+      longitude: { type: Number, required: true }
+    },
+    rating: { type: Number, required: true },
+    description: { type: String, required: true }
+  }],
+  day_plans: [{
+    day: { type: String, required: true },
+    activities: [{
+      time: { type: String, required: true },
+      place_name: { type: String, required: true },
+      place_details: { type: String, required: true },
+      place_image_url: { type: String, required: true },
+      geo_coordinates: {
+        latitude: { type: Number, required: true },
+        longitude: { type: Number, required: true }
+      },
+      ticket_pricing: { type: String, required: true },
+      time_to_travel: { type: String, required: true }
+    }]
+  }]
+});
 
-const travelmodel = new mongoose.model("travel", travelSchema);
+const travelModel = mongoose.model('travel', travelSchema);
 
-export default travelmodel;
+export default travelModel;

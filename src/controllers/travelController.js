@@ -7,8 +7,6 @@ import { redis } from "../config/redis.js";
 const travelDetails = async (req, res, next) => {
   const { travelDetails } = req.body;
 
- 
-  console.log("trvael details" , travelDetails)
 
   if (!travelDetails) {
     return next(createHttpError(400, "Travel details are required"));
@@ -28,10 +26,9 @@ const travelDetails = async (req, res, next) => {
     if (!user.travellerDetails) {
         user.travellerDetails = []; 
       }
-    // console.log(newTravel);
-    console.log("hello",)
     
-    user.travellerDetails.push(newTravel); // Push the entire travel document
+    
+    user.travellerDetails.push(newTravel); 
     await user.save();
 
     redis.set(req.user?._id, JSON.stringify(user));
