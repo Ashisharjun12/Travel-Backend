@@ -5,10 +5,13 @@ import { redis } from "../config/redis.js";
 
 
 const travelDetails = async (req, res, next) => {
-  const { travelDetails } = req.body;
+  const data = req.body;
+
+ 
 
 
-  if (!travelDetails) {
+
+  if (!data) {
     return next(createHttpError(400, "Travel details are required"));
   }
 
@@ -20,7 +23,7 @@ const travelDetails = async (req, res, next) => {
       return next(createHttpError(400, "user not found..."));
     }
 
-    const newTravel =  new travelmodel(travelDetails);
+    const newTravel =  new travelmodel(data);
     await newTravel.save();
 
     if (!user.travellerDetails) {
