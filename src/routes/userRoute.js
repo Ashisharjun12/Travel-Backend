@@ -4,6 +4,7 @@ import {
   loginUser,
   logout,
   registerUser,
+  resetPassword,
   updateavatar,
   updateDetails,
   updatePassword,
@@ -18,6 +19,7 @@ userRoute.post("/activate", activateuser);
 userRoute.post("/login", loginUser);
 userRoute.post("/logout", isLoggedIn, logout);
 userRoute.put("/updatePassword", isLoggedIn, updatePassword);
+userRoute.put('/resetPassword', resetPassword)
 userRoute.put("/updateDetails", isLoggedIn, updateDetails);
 userRoute.post(
   "/updateavatar",

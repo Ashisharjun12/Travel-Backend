@@ -7,6 +7,7 @@ import { _config } from "../config/config.js";
 import cookieToken from "../utils/cookieToken.js";
 import { redis } from "../config/redis.js";
 import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
+import { nanoid } from "nanoid";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -40,6 +41,9 @@ const registerUser = async (req, res, next) => {
         template: "activationMail.ejs",
         data,
       });
+
+
+    
 
       res.status(201).json({
         success: true,
@@ -82,13 +86,12 @@ const activateuser = async (req, res, next) => {
       fullname,
       email,
       password,
+      isVerified:true
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Activating user...",
-      user,
-    });
+     
+    //send cookie
+  cookieToken(user, res, 200);
   } catch (error) {
     return next(createHttpError(400, "error while activating user", error));
   }
@@ -161,6 +164,7 @@ const updatePassword = async (req, res, next) => {
       return next(createHttpError(400, "invalid password.."));
     }
 
+  
     user.password = newPassword;
 
     await user.save();
@@ -169,7 +173,7 @@ const updatePassword = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "updating password successfully..",
+      message: "updating password successfully...",
       user,
     });
   } catch (error) {
@@ -179,56 +183,118 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
-const updateDetails = async (req, res, next) => {};
+const updateDetails = async (req, res, next) => {
+
+
+
+
+};
 
 const updateavatar = async (req, res, next) => {
+  try {
+    const userid = req.user?._id;
 
+    let localavatarpath;
+    if (req.files && req.files.avatar) {
+      localavatarpath = req.files.avatar[0].path;
+    }
 
-try {
-  const userid = req.user?._id;
+    let user;
+    if (localavatarpath) {
+      user = await usermodel.findById(userid);
 
-  let localavatarpath;
-  if (req.files && req.files.avatar) {
-    localavatarpath = req.files.avatar[0].path;
+      if (!user) {
+        return next(createHttpError(400, "User does not exist"));
+      }
+      // If user already has an avatar uploaded
+      if (user.avatar && user.avatar.id) {
+        await deleteOnCloudinary(user.avatar.id);
+      }
+
+      // Upload new avatar
+      const avatarupload = await uploadOnCloudinary(
+        localavatarpath,
+        "avatarfolder"
+      );
+
+      // Update user avatar
+      user.avatar = {
+        id: avatarupload.public_id,
+        secure_url: avatarupload.secure_url,
+      };
+
+      await user.save();
+
+      //set data to redis db
+      await redis.set(userid, JSON.stringify(user));
+    } else {
+      user = await usermodel.findById(userid);
+      if (!user) {
+        return next(createHttpError(400, "User does not exist"));
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Avatar updated successfully",
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    return next(createHttpError(400, "Error while updating avatar", error));
   }
+};
 
-  let user;
-  if (localavatarpath) {
-    user = await usermodel.findById(userid);
+const resetPassword = async (req, res, next) => {
+  
+  try {
+    const { email } = req.body;
 
-    if (!user) {
-      return next(createHttpError(400, "User does not exist"));
-    }
-    // If user already has an avatar uploaded
-    if (user.avatar && user.avatar.id) {
-      await deleteOnCloudinary(user.avatar.id);
+    if (!email) {
+      return next(createHttpError(400, "Please provide the email..."));
     }
 
-    // Upload new avatar
-    const avatarupload = await uploadOnCloudinary(localavatarpath, "avatarfolder");
+    //find by email in db
+    const user = await usermodel.findOne({email})
 
-    // Update user avatar
-    user.avatar = {
-      id: avatarupload.public_id,
-      secure_url: avatarupload.secure_url,
-    };
+
+    if(!user){
+      return next(createHttpError(400 , "email not find in db..."))
+    }
+
+      // Generate a new password
+      const newpassword = nanoid(8);
+    user.password = newpassword;
 
     await user.save();
-  } else {
-    user = await usermodel.findById(userid);
-    if (!user) {
-      return next(createHttpError(400, "User does not exist"));
+
+   
+
+
+    // Send email
+    try {
+      await emailHelper({
+        email,
+        subject: "Reset your Password",
+        template: "resetPassword.ejs",
+        data: { newpassword },
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent successfully",
+      });
+    } catch (error) {
+      return next(
+        createHttpError(401, "Error while sending reset password email", error)
+      );
     }
+  } catch (error) {
+    return next(
+      createHttpError(400, "Error while sending activation email", error)
+    );
   }
 
-  res.status(200).json({
-    success: true,
-    message: "Avatar updated successfully",
-    avatar: user.avatar,
-  });
-} catch (error) {
-  return next(createHttpError(400, "Error while updating avatar", error));
-}
+
 };
 
 export {
@@ -239,4 +305,5 @@ export {
   updatePassword,
   updateDetails,
   updateavatar,
+  resetPassword,
 };
