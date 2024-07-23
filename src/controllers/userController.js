@@ -6,6 +6,7 @@ import usermodel from "../models/userModel.js";
 import { _config } from "../config/config.js";
 import cookieToken from "../utils/cookieToken.js";
 import { redis } from "../config/redis.js";
+import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const registerUser = async (req, res, next) => {
   try {
@@ -93,96 +94,149 @@ const activateuser = async (req, res, next) => {
   }
 };
 
+const loginUser = async (req, res, next) => {
+  //get frontend data
+  const { email, password } = req.body;
 
-const loginUser = async(req,res,next)=>{
-     //get frontend data
-     const { email, password } = req.body;
+  if (!email || !password) {
+    return next(createHttpError(400, "all fields required.."));
+  }
 
-     if (!email || !password) {
-        return next(createHttpError(400, "all fields required.."));
-      }
-  
-      //find by email and check
-      const user = await usermodel.findOne({ email }).select("+password");
-  
-      if (!user) {
-        return next(createHttpError(400, " user not exist with this email.."));
-      }
+  //find by email and check
+  const user = await usermodel.findOne({ email }).select("+password");
 
-        //checck password
-    const isPasswordMatch = await user.isValidatedPassword(password);
+  if (!user) {
+    return next(createHttpError(400, " user not exist with this email.."));
+  }
 
-    if (!isPasswordMatch) {
-      return next(createHttpError(400, "invalid email or password.."));
+  //checck password
+  const isPasswordMatch = await user.isValidatedPassword(password);
+
+  if (!isPasswordMatch) {
+    return next(createHttpError(400, "invalid email or password.."));
+  }
+
+  //send cookie
+  cookieToken(user, res, 200);
+};
+
+const logout = async (req, res, next) => {
+  try {
+    res.cookie("access_token", "", { maxAge: 1 });
+    res.cookie("refresh_token", "", { maxAge: 1 });
+
+    //delete from redis db
+    const userId = req.user?._id || "";
+
+    console.log(req.user?._id);
+
+    redis.del(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "logout successfully..",
+    });
+  } catch (error) {
+    return next(createHttpError(400, "logout error..."));
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return next(createHttpError(400, "please fill old and new password"));
     }
 
-    //send cookie
-    cookieToken(user, res, 200);
+    const user = await usermodel.findById(req.user?._id).select("+password");
+
+    if (user.password == undefined) {
+      return next(400, "invalid user");
+    }
+
+    const isMatchPassword = await user?.isValidatedPassword(oldPassword);
+
+    if (!isMatchPassword) {
+      return next(createHttpError(400, "invalid password.."));
+    }
+
+    user.password = newPassword;
+
+    await user.save();
+
+    await redis.set(req.user?._id, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      message: "updating password successfully..",
+      user,
+    });
+  } catch (error) {
+    return next(
+      createHttpError(400, "error while updating password...", error)
+    );
+  }
+};
+
+const updateDetails = async (req, res, next) => {};
+
+const updateavatar = async (req, res, next) => {
 
 
+try {
+  const userid = req.user?._id;
+
+  let localavatarpath;
+  if (req.files && req.files.avatar) {
+    localavatarpath = req.files.avatar[0].path;
+  }
+
+  let user;
+  if (localavatarpath) {
+    user = await usermodel.findById(userid);
+
+    if (!user) {
+      return next(createHttpError(400, "User does not exist"));
+    }
+    // If user already has an avatar uploaded
+    if (user.avatar && user.avatar.id) {
+      await deleteOnCloudinary(user.avatar.id);
+    }
+
+    // Upload new avatar
+    const avatarupload = await uploadOnCloudinary(localavatarpath, "avatarfolder");
+
+    // Update user avatar
+    user.avatar = {
+      id: avatarupload.public_id,
+      secure_url: avatarupload.secure_url,
+    };
+
+    await user.save();
+  } else {
+    user = await usermodel.findById(userid);
+    if (!user) {
+      return next(createHttpError(400, "User does not exist"));
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Avatar updated successfully",
+    avatar: user.avatar,
+  });
+} catch (error) {
+  return next(createHttpError(400, "Error while updating avatar", error));
 }
+};
 
-const logout = async(req,res,next)=>{
-    try {
-        res.cookie("access_token", "", { maxAge: 1 });
-        res.cookie("refresh_token", "", { maxAge: 1 });
-    
-        //delete from redis db
-        const userId = req.user?._id || "";
-    
-        console.log(req.user?._id);
-    
-        redis.del(userId)
-    
-        res.status(200).json({
-          success: true,
-          message: "logout successfully..",
-        });
-      } catch (error) {
-        return next(createHttpError(400, "logout error..."));
-      }
-
-
-}
-
-
-const updatePassword = async(req,res,next)=>{
-   try {
-     const { oldPassword, newPassword } = req.body;
- 
-     if(!oldPassword || !newPassword){
-         return next(createHttpError(400 , "please fill old and new password"))
-       }
- 
-       const user = await usermodel.findById(req.user?._id).select("+password");
-   
-     if (user.password == undefined) {
-       return next(400, "invalid user");
-    
-     }
-
-     const isMatchPassword = await user?.isValidatedPassword(oldPassword);
- 
-     if (!isMatchPassword) {
-         return next(createHttpError(400, "invalid password.."));
-       }
-     
-       user.password = newPassword;
-     
-       await user.save();
-   
-       await redis.set(req.user?._id , JSON.stringify(user))
-     
-       res.status(200).json({
-         success:true,
-         message:"updating password successfully..",
-         user
-       })
-   } catch (error) {
-     return next(createHttpError(400, "error while updating password...", error));
-    
-   }
-
-}
-
-export { registerUser, activateuser ,loginUser,logout, updatePassword};
+export {
+  registerUser,
+  activateuser,
+  loginUser,
+  logout,
+  updatePassword,
+  updateDetails,
+  updateavatar,
+};

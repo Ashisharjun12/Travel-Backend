@@ -7,8 +7,6 @@ import { redis } from "../config/redis.js";
 const travelDetails = async (req, res, next) => {
   const data = req.body;
 
- 
-
 
 
   if (!data) {
