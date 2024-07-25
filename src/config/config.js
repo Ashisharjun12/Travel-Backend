@@ -18,7 +18,8 @@ const {
   SMTP_PORT,
   SMTP_SERVICE,
   SMTP_USER,
-  SMTP_PASS
+  SMTP_PASS,
+  GEMINI_API
 } = process.env;
 
 export const _config = {
@@ -37,5 +38,6 @@ export const _config = {
   SMTP_PORT,
   SMTP_SERVICE,
   SMTP_USER,
-  SMTP_PASS
+  SMTP_PASS,
+  GEMINI_API
 };

@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
         type: String,
       },
     },
+    role: {
+      type: String,
+      default: "user",
+    },
     isVerified: {
       type: Boolean,
       default: false,
@@ -36,12 +40,15 @@ const userSchema = new mongoose.Schema(
     travellerDetails: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'travel',
-      }
-     
-
+        ref: "travel",
+      },
     ],
+    tripsBuiltCount: {
+      type: Number,
+      default: 0,
+    },
   },
+
   { timestamps: true }
 );
 

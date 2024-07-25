@@ -112,6 +112,8 @@ const loginUser = async (req, res, next) => {
     return next(createHttpError(400, " user not exist with this email.."));
   }
 
+  
+
   //checck password
   const isPasswordMatch = await user.isValidatedPassword(password);
 
@@ -248,6 +250,7 @@ const resetPassword = async (req, res, next) => {
   
   try {
     const { email } = req.body;
+    console.log('email :' , email)
 
     if (!email) {
       return next(createHttpError(400, "Please provide the email..."));
@@ -297,6 +300,10 @@ const resetPassword = async (req, res, next) => {
 
 };
 
+
+
+
+
 export {
   registerUser,
   activateuser,
@@ -306,4 +313,5 @@ export {
   updateDetails,
   updateavatar,
   resetPassword,
+ 
 };
