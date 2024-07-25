@@ -87,7 +87,9 @@ const getTravelDetails = async (req,res,next)=>{
 
 }
 
-export { travelDetails ,getTravelDetails};
+
+
+export { travelDetails ,getTravelDetails };
 
 
 
