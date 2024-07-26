@@ -187,6 +187,31 @@ const updatePassword = async (req, res, next) => {
 
 const updateDetails = async (req, res, next) => {
 
+  const userId = req.user?._id;
+
+  const {fullname} = req.body;
+
+  if(!fullname){
+    return next(createHttpError(400 , "please enter fullname"))
+  }
+
+  const user = await usermodel.findByIdAndUpdate(userId, {fullname}, {new: true});
+
+  if(!user){
+    return next(createHttpError(400, "user not found"))
+  }
+
+
+  //update in redis
+  await redis.set(userId, JSON.stringify(user));
+
+
+  res.status(200).json({
+    success: true,
+    message: "updating details successfully...",
+    user,
+  });
+
 
 
 

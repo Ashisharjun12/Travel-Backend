@@ -13,7 +13,7 @@ const adminlogin = async (req, res, next) => {
 
     // Find user by email and check
     const user = await usermodel.findOne({ email }).select("+password");
-    console.log("User found:", user);
+   
 
     if (!user) {
       return next(createHttpError(400, "User not found with this email."));
@@ -47,41 +47,33 @@ const admingetAllUsers = async (req, res, next) => {
 };
 
 const setrole = async (req, res, next) => {
-  try {
-    const { role } = req.params;
-    const { changerole } = req.body;
+  const userId = req.params.id;
 
-    // Validate inputs
-    if (!changerole) {
-      return next(createHttpError(400, "New role is required."));
+  try {
+    const { role } = req.body;
+
+    if (!userId || !role) {
+      return next(createHttpError(400, "User ID and role are required."));
     }
 
-    // Find user by ID and update their role
-    const user = await usermodel.findByIdAndUpdate(
-      role,
-      { role: changerole },
-      { new: true, runValidators: true }
-    );
+    const user = await usermodel.findById(userId);
 
     if (!user) {
       return next(createHttpError(404, "User not found."));
     }
 
-    // Update user info in Redis
-    await redis.set(user._id.toString(), JSON.stringify(user));
+    user.role = role;
+    await user.save();
 
-    res.json({
-      success: true,
-      message: "Role updated successfully",
-      user,
-    });
+    res.json({ success: true, message: "User role updated successfully.", user });
   } catch (error) {
-    next(createHttpError(500, "Error updating role.", error));
+    next(createHttpError(500, "Error updating user role.", error));
   }
+ 
 };
 
 const admingetoneuser = async (req, res, next) => {
-  const userid = req.params.id;
+  const userid = req.params.id
 
   const user = await usermodel.findById(userid);
 
@@ -92,4 +84,21 @@ const admingetoneuser = async (req, res, next) => {
   res.json({ success: true, message: "User found successfully....", user });
 };
 
-export { admingetAllUsers, adminlogin, setrole, admingetoneuser };
+const adminblockUser = async (req,res,next)=>{
+
+  
+
+  
+
+}
+
+const admindeleteUser = async (req,res,next)=>{
+
+  
+
+
+}
+
+
+
+export { admingetAllUsers, adminlogin, setrole, admingetoneuser, adminblockUser , admindeleteUser};
