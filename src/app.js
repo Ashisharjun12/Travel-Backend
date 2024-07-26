@@ -5,7 +5,8 @@ import errorHandler from "./middlewares/ErrorHandler.js";
 import userRoute from "./routes/userRoute.js";
 import travelRoute from "./routes/travelRoute.js";
 import adminRoute from "./routes/adminRoute.js";
-import premiumPlanRouter from "./routes/premiumPlanRoute.js";
+import subscriptionRouter from "./routes/subscriptionRoute.js";
+
 
 
 const app = express()
@@ -41,7 +42,8 @@ app.get("/", (req, res) => {
   app.use('/api/v1/user',userRoute)
   app.use('/api/v1/admin', adminRoute)
   app.use('/api/v1/travel', travelRoute)
-  app.use('/api/v1/plan', premiumPlanRouter)
+  app.use('/api/v1/subscription', subscriptionRouter)
+ 
   
 
 

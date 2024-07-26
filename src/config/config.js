@@ -19,7 +19,9 @@ const {
   SMTP_SERVICE,
   SMTP_USER,
   SMTP_PASS,
-  GEMINI_API
+  GEMINI_API,
+  BASIC_PLAN_ACCESS_TOKEN,
+  ADVANCE_PLAN_ACCESS_TOKEN
 } = process.env;
 
 export const _config = {
@@ -39,5 +41,7 @@ export const _config = {
   SMTP_SERVICE,
   SMTP_USER,
   SMTP_PASS,
-  GEMINI_API
+  GEMINI_API,
+  BASIC_PLAN_ACCESS_TOKEN,
+  ADVANCE_PLAN_ACCESS_TOKEN
 };
