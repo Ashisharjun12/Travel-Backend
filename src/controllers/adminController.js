@@ -2,6 +2,7 @@ import createHttpError from "http-errors";
 import usermodel from "../models/userModel.js";
 import { redis } from "../config/redis.js";
 import cookieToken from "../utils/cookieToken.js";
+import { deleteOnCloudinary } from "../utils/cloudinary.js";
 
 const adminlogin = async (req, res, next) => {
   try {
@@ -13,7 +14,6 @@ const adminlogin = async (req, res, next) => {
 
     // Find user by email and check
     const user = await usermodel.findOne({ email }).select("+password");
-   
 
     if (!user) {
       return next(createHttpError(400, "User not found with this email."));
@@ -65,15 +65,18 @@ const setrole = async (req, res, next) => {
     user.role = role;
     await user.save();
 
-    res.json({ success: true, message: "User role updated successfully.", user });
+    res.json({
+      success: true,
+      message: "User role updated successfully.",
+      user,
+    });
   } catch (error) {
     next(createHttpError(500, "Error updating user role.", error));
   }
- 
 };
 
 const admingetoneuser = async (req, res, next) => {
-  const userid = req.params.id
+  const userid = req.params.id;
 
   const user = await usermodel.findById(userid);
 
@@ -84,21 +87,42 @@ const admingetoneuser = async (req, res, next) => {
   res.json({ success: true, message: "User found successfully....", user });
 };
 
-const adminblockUser = async (req,res,next)=>{
+const adminblockUser = async (req, res, next) => {};
 
-  
+const admindeleteOneUser = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
 
-  
+    const user = await usermodel.findById(userId);
 
-}
+    if (!user) {
+      return next(createHttpError(404, "user not found"));
+    }
 
-const admindeleteUser = async (req,res,next)=>{
+    //delete from cloudinary..
+    if (user.avatar && user.avatar.id) {
+      await deleteOnCloudinary(user.avatar.id);
+    }
 
-  
+    //remove user from db
+    await usermodel.findByIdAndDelete(userId);
 
+    //update and delete redis db
+    redis.del(userId)
 
-}
+    res.json({ success: true, message: "User deleted successfully." });
+  } catch (error) {
+    return next(
+      createHttpError(500, "error while deleting user...", error.message, error)
+    );
+  }
+};
 
-
-
-export { admingetAllUsers, adminlogin, setrole, admingetoneuser, adminblockUser , admindeleteUser};
+export {
+  admingetAllUsers,
+  adminlogin,
+  setrole,
+  admingetoneuser,
+  adminblockUser,
+  admindeleteOneUser,
+};

@@ -133,7 +133,7 @@ const logout = async (req, res, next) => {
     //delete from redis db
     const userId = req.user?._id || "";
 
-    console.log(req.user?._id);
+  
 
     redis.del(userId);
 
@@ -324,6 +324,7 @@ const resetPassword = async (req, res, next) => {
 
 
 };
+
 
 
 
