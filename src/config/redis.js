@@ -7,7 +7,7 @@ const redisClient = () => {
     console.log("Redis is connected successfully!!");
     return _config.REDIS_URI;
   }
-  throw new error("Redis connection failed.");
+  throw new Error("Redis connection failed.");
 };
 
 export const redis = new Redis(redisClient());
