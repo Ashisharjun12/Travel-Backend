@@ -6,9 +6,10 @@ import usermodel from "../models/userModel.js";
 
 
 const travelDetails = async (req, res, next) => {
+  const { FINAL_PROMPT, photoRef } = req.body;
 
-  const { FINAL_PROMPT } = req.body;
   console.log("final prompt:", FINAL_PROMPT);
+  console.log("photoref:", photoRef);
 
   if (!FINAL_PROMPT) {
     return next(createHttpError(400, "Invalid final prompt..."));
@@ -19,21 +20,21 @@ const travelDetails = async (req, res, next) => {
     const result = await chatSession.sendMessage(FINAL_PROMPT);
 
     // Get AI response text
-    const aiResponseText = await result.response.text();
+    const aiResponseText = result.response.text();
 
     // Log AI response text for debugging
     console.log("AI Response Text:", aiResponseText);
 
-    // Parse the AI response
     let aiResponse;
-    try {
-      aiResponse = JSON.parse(aiResponseText);
-    } catch (parseError) {
-      console.error("Error parsing AI response:", parseError);
-      return next(createHttpError(500, "Invalid AI response format."));
-    }
+
+    aiResponse = JSON.parse(aiResponseText);
 
     console.log("AI Response:", aiResponse);
+
+    // Include the photoRef in the aiResponse object
+    if (photoRef) {
+      aiResponse.trip_details.photoRef = photoRef;
+    }
 
     // Save the generated travel data to the database
     const user = await usermodel.findById(req.user?._id);
@@ -67,7 +68,6 @@ const travelDetails = async (req, res, next) => {
   }
 };
 
-
 const getTravelDetails = async (req,res,next)=>{
   try {
     const user = await usermodel.findById(req.user?._id).populate('travellerDetails');
@@ -79,6 +79,8 @@ const getTravelDetails = async (req,res,next)=>{
     res.status(200).json({
       success: true,
       user,
+      userId:req.user?._id,
+      travellerDetails: user.travellerDetails,
     });
   } catch (error) {
     return next(createHttpError(400, "Error in retrieving user details", error));

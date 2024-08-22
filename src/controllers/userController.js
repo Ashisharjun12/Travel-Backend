@@ -275,7 +275,7 @@ const resetPassword = async (req, res, next) => {
   
   try {
     const { email } = req.body;
-    console.log('email :' , email)
+    
 
     if (!email) {
       return next(createHttpError(400, "Please provide the email..."));
@@ -326,6 +326,28 @@ const resetPassword = async (req, res, next) => {
 };
 
 
+const getUserDetails = async (req,res,next)=>{
+ try {
+   const userId = req.user?._id;
+ 
+ 
+ 
+   const user = await usermodel.findById(userId)
+ 
+   if(!user){
+     return next(createHttpError(400, "user not found"))  
+   }
+ 
+   res.status(200).json({success:true , user})
+ } catch (error) {
+   return next(createHttpError(400, "error while getting user details", error))
+  
+ }
+
+
+
+
+}
 
 
 
@@ -339,5 +361,6 @@ export {
   updateDetails,
   updateavatar,
   resetPassword,
+  getUserDetails
  
 };

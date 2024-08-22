@@ -7,6 +7,8 @@ export const travelSchema = new Schema({
     duration: { type: String, required: true },
     budget: { type: String, required: true },
     travelers: { type: String, required: true },
+    photoRef:{ type:String}
+   
   },
   flight_details: {
     flight_provider: { type: String, required: true },

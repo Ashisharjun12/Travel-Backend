@@ -87,7 +87,6 @@ const admingetoneuser = async (req, res, next) => {
   res.json({ success: true, message: "User found successfully....", user });
 };
 
-const adminblockUser = async (req, res, next) => {};
 
 const admindeleteOneUser = async (req, res, next) => {
   try {
@@ -108,7 +107,7 @@ const admindeleteOneUser = async (req, res, next) => {
     await usermodel.findByIdAndDelete(userId);
 
     //update and delete redis db
-    redis.del(userId)
+    redis.del(userId);
 
     res.json({ success: true, message: "User deleted successfully." });
   } catch (error) {
@@ -118,11 +117,13 @@ const admindeleteOneUser = async (req, res, next) => {
   }
 };
 
+
+
+
 export {
   admingetAllUsers,
   adminlogin,
   setrole,
   admingetoneuser,
-  adminblockUser,
   admindeleteOneUser,
 };

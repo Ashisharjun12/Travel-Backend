@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { _config } from "../config/config.js";
-import { travelSchema } from "./traveModel.js";
+
 
 const userSchema = new mongoose.Schema(
   {

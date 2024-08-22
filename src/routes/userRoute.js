@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   activateuser,
+  getUserDetails,
   loginUser,
   logout,
   registerUser,
@@ -16,6 +17,7 @@ const userRoute = Router();
 
 userRoute.post("/register", registerUser);
 userRoute.post("/activate", activateuser);
+userRoute.get('/getuser', isLoggedIn,getUserDetails)
 userRoute.post("/login", loginUser);
 userRoute.post("/logout", isLoggedIn, logout);
 userRoute.put("/updatePassword", isLoggedIn, updatePassword);
