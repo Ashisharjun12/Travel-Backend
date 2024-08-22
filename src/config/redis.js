@@ -2,10 +2,10 @@ import { Redis } from "ioredis";
 import { _config } from "./config.js";
 
 const redisClient = () => {
-  console.log("Attempting to connect to Redis with URI:", _config.REDIS_URI);
-  if (_config.REDIS_URI) {
+  console.log("Attempting to connect to Redis with URI:", "rediss://default:AXuHAAIncDE1MzIwM2Y5NWMwYTg0Yjk5OWYwNjRlMzRhMmQ5ZTRiNXAxMzE2MjM@sharing-mole-31623.upstash.io:6379");
+  if ('rediss://default:AXuHAAIncDE1MzIwM2Y5NWMwYTg0Yjk5OWYwNjRlMzRhMmQ5ZTRiNXAxMzE2MjM@sharing-mole-31623.upstash.io:6379') {
     console.log("Redis is connected successfully!!");
-    return _config.REDIS_URI
+    return "rediss://default:AXuHAAIncDE1MzIwM2Y5NWMwYTg0Yjk5OWYwNjRlMzRhMmQ5ZTRiNXAxMzE2MjM@sharing-mole-31623.upstash.io:6379";
   }
   throw new Error("Redis connection failed.");
 };
