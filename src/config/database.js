@@ -11,7 +11,7 @@ const connectdb = async () => {
       console.log("connection error in db ", err);
     });
 
-    await mongoose.connect(_config.MONGO_URI);
+    await mongoose.connect('mongodb+srv://awscode1210:HTUMM8M4eZXQBWEb@cluster0.injn6ew.mongodb.net/');
   } catch (error) {
     console.log("mongodb connection errror : ", error);
 
