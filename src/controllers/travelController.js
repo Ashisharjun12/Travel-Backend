@@ -31,7 +31,7 @@ const travelDetails = async (req, res, next) => {
 
     console.log("AI Response:", aiResponse);
 
-    // Include the photoRef in the aiResponse object
+    
     if (photoRef) {
       aiResponse.trip_details.photoRef = photoRef;
     }
